@@ -1,0 +1,16 @@
+LDFLAGS = -lssl -lcrypto -lpam -shared
+CFLAGS = -I/usr/include/openssl -I/usr/kerberos/include
+PAM_LDFLAGS = ${LDFLAGS}
+CC = /usr/bin/gcc
+
+all: castest pam
+
+castest: cas_validator.o xml.o
+
+cas_validator.o: xml.o
+
+pam: cas_validator.o xml.o pam_cas.o
+	ld ${PAM_LDFLAGS} cas_validator.o xml.o pam_cas.o -o pam_cas.so
+
+clean:
+	rm -rf xml.o cas_validator.o pam_cas.so pam_cas.so castest

@@ -1,0 +1,19 @@
+CC = gcc
+LD = gcc
+SSL = /usr/local/ssl
+LDFLAGS = -ldl -lnsl -lsocket ${SSL}/lib/libssl.a ${SSL}/lib/libcrypto.a
+CFLAGS = -g -I${SSL}/include
+PAM_LDFLAGS = ${LDFLAGS} -lpam -Xlinker -G -Xlinker -B -Xlinker static
+
+all: castest pam
+
+castest: cas_validator.o xml.o castest.o
+	${LD} castest.o cas_validator.o xml.o ${LDFLAGS} -o castest
+
+cas_validator.o: xml.o
+
+pam: cas_validator.o xml.o pam_cas.o
+	${LD} ${PAM_LDFLAGS} cas_validator.o xml.o pam_cas.o -o pam_cas.so ${SSL}/lib/libssl.a ${SSL}/lib/libcrypto.a
+
+clean:
+	rm -rf *.o castest pam_cas.so
